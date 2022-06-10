@@ -5,7 +5,11 @@
     </head>
     <body>
         <py-script>
-            print('hello world')
+            import numpy as np 
+            import matplotlib.pyplot as plt 
+            a = np.arange(100)
+            plt.plot(a)
+            plt.show()
             </py-script>
         </body>
 </html>
