@@ -1,0 +1,56 @@
+<html>
+
+<head>
+    <title>Coco SSD</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"> </script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd"> </script>
+</head>
+
+<body>
+    <font color="blue">
+        <div id="info">...</div>
+    </font>
+    <video id="videoInput" width="600" height="720" style="position: absolute; left:10; top:30"></video>
+    <canvas id="videoOutput" width="600" height="720" style="position: absolute; left:10; top:30"></canvas>
+    <script>
+        const info = document.getElementById("info");
+        const constraints = { audio: false, video: true };
+        const video = document.getElementById("videoInput");
+        function successCallback(stream) {
+            video.srcObject = stream;
+            video.play();
+        }
+        function errorCallback(error) {
+            console.log(error);
+        }
+        navigator.getUserMedia(constraints, successCallback, errorCallback);
+        let net;
+        async function makeNet() {
+            info.innerHTML = "Now loading... Please wait.";
+            net = await cocoSsd.load();
+            info.innerHTML = "Ready to use!";
+            setInterval(detect, 0);
+        }
+        makeNet();
+        let predict;
+        const canvas = document.getElementById("videoOutput");
+        const ctx = canvas.getContext("2d");
+        ctx.strokeStyle = "rgb(0, 255, 0)";
+        ctx.fillStyle = "rgb(0, 255, 0)";
+        ctx.lineWidth = 2;
+        ctx.font = "15px Arial";
+        async function detect() {
+            predict = await net.detect(video);
+            info.innerHTML = "Object No. : " + predict.length;
+            if (predict.length > 0) {
+                ctx.clearRect(0, 0, canvas.clientWidth, canvas.clientHeight);
+                for (let i = 0; i < predict.length; i++) {
+                    ctx.fillText(predict[i].class, predict[i].bbox[0] + 5, predict[i].bbox[1] + 15);
+                    ctx.strokeRect(predict[i].bbox[0], predict[i].bbox[1], predict[i].bbox[2], predict[i].bbox[3]);
+                }
+            }
+        }
+    </script>
+</body>
+
+</html>
